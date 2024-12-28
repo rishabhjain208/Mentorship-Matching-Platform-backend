@@ -1,0 +1,80 @@
+// // This is your Prisma schema file,
+// // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = "postgresql://test_owner:Kt2hlyHRbuz3@ep-lively-bonus-a5qyktuy.us-east-2.aws.neon.tech/MMP?sslmode=require"
+// }
+
+// model User {
+//   id               Int                 @id @default(autoincrement())
+//   email            String              @unique
+//   password         String
+//   name             String
+//   role             String // "mentor" or "mentee"
+//   bio              String?
+//   skills           String[]
+//   interests        String[]
+//   sentRequests     MentorshipRequest[] @relation("MentorToMentee", references: [id])
+//   receivedRequests MentorshipRequest[] @relation("MenteeToMentor", references: [id])
+// }
+
+// model MentorshipRequest {
+//   id         Int      @id @default(autoincrement())
+//   fromUser   User     @relation("MentorToMentee", fields: [fromUserId], references: [id])
+//   toUser     User     @relation("MenteeToMentor", fields: [toUserId], references: [id])
+//   fromUserId Int
+//   toUserId   Int
+//   status     String   @default("pending") // "pending", "accepted", "rejected"
+//   createdAt  DateTime @default(now())
+// }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://test_owner:Kt2hlyHRbuz3@ep-lively-bonus-a5qyktuy.us-east-2.aws.neon.tech/MMP?sslmode=require"
+}
+
+model User {
+  id               Int                 @id @default(autoincrement())
+  email            String              @unique
+  password         String
+  name             String
+  role             String // "mentor" or "mentee"
+  bio              String?
+  skills           String[]
+  interests        String[]
+  sentRequests     ConnectionRequest[] @relation("SentRequests")
+  receivedRequests ConnectionRequest[] @relation("ReceivedRequests")
+}
+
+// model MentorshipRequest {
+//   id         Int      @id @default(autoincrement())
+//   fromUser   User     @relation("MentorToMentee", fields: [fromUserId], references: [id])
+//   toUser     User     @relation("MenteeToMentor", fields: [toUserId], references: [id])
+//   fromUserId Int
+//   toUserId   Int
+//   status     String   @default("pending") // "pending", "accepted", "rejected"
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+// }
+model ConnectionRequest {
+  id         Int      @id @default(autoincrement())
+  senderId   Int // User ID of the mentee sending the request
+  receiverId Int // User ID of the mentor receiving the request
+  status     String   @default("pending") // 'pending', 'accepted', 'declined'
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("SentRequests", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedRequests", fields: [receiverId], references: [id])
+}
